@@ -1,0 +1,28 @@
+version: '3'
+services:
+   DB:
+     image: mysql:5.7
+     restart: always
+     environment:
+       - MYSQL_ROOT_PASSWORD=DatabasePasswordRoot
+       - MYSQL_DATABASE=voting_db
+     ports:
+       - "3306:3306"
+     depends_on:
+       - NGINX
+   APP:
+     image: voting:dkr30
+     restart: unless-stopped
+     environment:
+       LISTEN_ADDRESS: :9000
+     volumes:
+       - ./php-fpm/php-fpm.conf:/usr/local/etc/php-fpm.conf
+     depends_on:
+       - DB
+   NGINX:
+     image: nginx:stable
+     restart: unless-stopped
+     volumes:
+       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+     ports:
+       - "20000:80"
